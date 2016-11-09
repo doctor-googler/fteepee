@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Raman_Hutkovich on 11/1/2016.
+ * Created by doctor-googler on 11/1/2016.
  */
 public class FTPManagerResponse<T> implements Serializable {
     private T content;
