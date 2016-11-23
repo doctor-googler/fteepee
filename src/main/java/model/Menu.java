@@ -1,11 +1,11 @@
-/**
+package model; /**
  * Created by doctor-googler on 11/9/2016.
  */
-import com.sun.javafx.binding.StringFormatter;
 
 import java.util.Scanner;
 
-import static java.lang.System.*;
+import static java.lang.System.in;
+import static java.lang.System.out;
 public class Menu {
     private enum Commands {
         CONNECT("connect"),

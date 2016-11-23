@@ -1,12 +1,28 @@
 apply plugin: 'java'
 apply plugin: 'idea'
+
+buildscript {
+    dependencies {
+        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: "8.5.1"
+    }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+
+    }
+}
+
 repositories {
+    mavenLocal();
     mavenCentral()
 }
 
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.18'
     compile group: 'commons-net', name: 'commons-net', version: '3.5'
+    compile group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.5.1'
+    compile 'org.controlsfx:controlsfx:8.40.12'
     testCompile 'junit:junit:4.12'
 }
 
@@ -14,4 +30,10 @@ idea {
     module {
         downloadJavadoc = true
     }
+}
+
+apply plugin: 'javafx-gradle-plugin'
+jfx {
+    mainClass = 'Main'
+    vendor = 'Raman Hutkovich'
 }

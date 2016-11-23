@@ -1,3 +1,5 @@
+package model;
+
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
@@ -30,6 +32,7 @@ public class FTPManager {
         FTPManagerResponse<Boolean> response = new FTPManagerResponse<>();
         try {
             client.connect(host);
+            client.enterLocalPassiveMode();
             connected = client.login(userName, password);
             response.setContent(connected);
         } catch (IOException e) {

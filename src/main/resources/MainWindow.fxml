@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Rectangle2D?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.TextFlow?>
+<Pane id="basePane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="506.0" prefWidth="758.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.MainWindowController">
+   <children>
+      <MenuBar id="menuBar" fx:id="menuBar" layoutY="2.0" prefHeight="25.0" prefWidth="758.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="FTP">
+            <items>
+                  <MenuItem fx:id="itemConnect" mnemonicParsing="false" onAction="#handleConnect" text="Connect . . ." />
+                  <MenuItem fx:id="itemDisconnect" mnemonicParsing="false" onAction="#handleDisconnect" text="Disconnect" />
+                  <MenuItem fx:id="itemExit" mnemonicParsing="false" onAction="#handleExit" text="Exit" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit" />
+          <Menu mnemonicParsing="false" text="Help" />
+        </menus>
+      </MenuBar>
+      <ProgressBar id="progressBar" fx:id="progressBar" layoutX="423.0" layoutY="479.0" prefHeight="18.0" prefWidth="323.0" progress="0.0" />
+      <ImageView id="picView" fx:id="preview" fitHeight="325.0" fitWidth="323.0" layoutX="423.0" layoutY="34.0" pickOnBounds="true" preserveRatio="true">
+         <viewport>
+            <Rectangle2D height="323.0" minX="323.0" minY="323.0" width="323.0" />
+         </viewport>
+      </ImageView>
+      <TextFlow id="infoView" fx:id="info" layoutX="423.0" layoutY="366.0" prefHeight="106.0" prefWidth="323.0" />
+      <TreeView fx:id="treeView" layoutX="14.0" layoutY="34.0" onMouseClicked="#onTreeMouseClicked" prefHeight="428.0" prefWidth="388.0" />
+   </children>
+</Pane>
