@@ -1,11 +1,11 @@
 package model;
 
+import javafx.concurrent.Task;
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +31,12 @@ public class FTPManager {
     public FTPManagerResponse<Boolean> connect(String host, String userName, String password) {
         FTPManagerResponse<Boolean> response = new FTPManagerResponse<>();
         try {
-            client.connect(host);
+            String[] hostParameters = host.split(":");
+            if (hostParameters.length > 1) {
+                client.connect(hostParameters[0], Integer.parseInt(hostParameters[1]));
+            } else {
+                client.connect(host);
+            }
             client.enterLocalPassiveMode();
             connected = client.login(userName, password);
             response.setContent(connected);
@@ -65,16 +70,16 @@ public class FTPManager {
      * Retrieve a file list of current directory
      * @return
      */
-    public FTPManagerResponse<List<String>> fileList() {
-        FTPManagerResponse<List<String>> response = new FTPManagerResponse<>();
+    public FTPManagerResponse<List<FTPFile>> fileList() {
+        FTPManagerResponse<List<FTPFile>> response = new FTPManagerResponse<>();
         if (!isConnected(response)) {
             return response;
         }
-        List<String> files = new ArrayList<>();
+        List<FTPFile> files = new ArrayList<>();
         try {
             //TODO: change listDirs to listNames
             for(FTPFile file: client.listFiles()) {
-                files.add(file.getName());
+                files.add(file);
             }
             response.setContent(files);
         } catch (IOException e) {
@@ -121,6 +126,163 @@ public class FTPManager {
             response.addError(e);
         }
         return response;
+    }
+
+
+    //TODO unbind from javafx concurrent
+    /**
+     * Download file with progress representation
+     */
+    public FTPManagerResponse<Task<Boolean>> downloadWithProgresss(String remotePath, String localPath) {
+        FTPManagerResponse<Task<Boolean>> response = new FTPManagerResponse<>();
+        if (!isConnected(response)) {
+            return response;
+        }
+        FTPFile ftpFile = fileInfo(remotePath).getContent();
+        if (ftpFile == null) {
+            response.addError(new Exception("File doesn't exist"));
+        }
+        if (ftpFile.isDirectory()) {
+            response.addError(new Exception("Unable to download directory"));
+        }
+        Task<Boolean> task = new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                boolean result = false;
+                File localFile = new File(localPath);
+                long size = ftpFile.getSize();
+                byte[] buf = new byte[1024];
+                long done = 0;
+                int byteCount = 0;
+                client.setFileType(FTP.BINARY_FILE_TYPE);
+                try ( InputStream is = client.retrieveFileStream(remotePath);
+                      FileOutputStream fos = new FileOutputStream(localFile);) {
+                    while ((byteCount = is.read(buf)) > 0) {
+                        done += byteCount;
+                        fos.write(buf, 0, byteCount);
+                        updateProgress(done, size);
+                    }
+                    fos.flush();;
+                } catch (IOException e) {
+                    System.err.println(e);
+                } finally {
+                    result = client.completePendingCommand();
+                    System.out.println("Download operation result: "+result);
+                }
+                return result;
+            }
+        };
+        response.setContent(task);
+        return response;
+    }
+
+    //TODO unbind from javafx concurrent
+    /**
+     * Upload file with progress representation
+     */
+    public FTPManagerResponse<Task<Boolean>> uploadWithProgress(String remotePath, String localPath) {
+        FTPManagerResponse<Task<Boolean>> response = new FTPManagerResponse<>();
+        if (!isConnected(response)) {
+            return response;
+        }
+        File localFile = new File(localPath);
+        if (!localFile.exists()) {
+            response.addError(new Exception("File not exists"));
+            return response;
+        }
+        Task<Boolean> task = new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                boolean result = false;
+                client.setFileType(FTP.BINARY_FILE_TYPE);
+                try(FileInputStream fis = new FileInputStream(localFile);
+                    OutputStream os = client.appendFileStream(remotePath)){
+
+                    long fileSize = localFile.length();
+                    long sended = 0L;
+                    int bytesRead = 0;
+                    byte[] buffer = new byte[1024];
+                    while((bytesRead = fis.read(buffer)) > 0) {
+                        os.write(buffer, 0, bytesRead);
+                        sended += bytesRead;
+                        updateProgress(sended, fileSize);
+                    }
+                    os.flush();
+                } catch (IOException e) {
+                    System.err.println(e);
+                } finally {
+                    result = client.completePendingCommand();
+                    System.out.println("Upload operation result: "+result);
+                }
+
+                return result;
+            }
+        };
+        response.setContent(task);
+
+        return response;
+    }
+
+    /**
+     * Delete remote file
+     * @param path
+     * @return
+     */
+    public FTPManagerResponse<Boolean> delete(String path) {
+        FTPManagerResponse<Boolean> response = new FTPManagerResponse<>();
+        if (!isConnected(response)) {
+            return response;
+        }
+        try {
+            response.setContent(client.deleteFile(path));
+        } catch (IOException e) {
+            response.addError(e);
+        }
+        return response;
+    }
+
+    /**
+     * Rename remote file
+     * @param oldPath
+     * @param newPath
+     * @return
+     */
+    public FTPManagerResponse<Boolean> rename(String oldPath, String newPath) {
+        FTPManagerResponse<Boolean> response = new FTPManagerResponse<>();
+        if (!isConnected(response)) {
+            return response;
+        }
+        try {
+            response.setContent(client.rename(oldPath, newPath));
+        } catch (IOException e) {
+            response.addError(e);
+        }
+        return response;
+    }
+
+
+    //TODO unbind from transport-level file representation (FTPFile class)
+    /**
+     * Retrieves file info from the server
+     * @param filePath
+     * @return
+     */
+    public FTPManagerResponse<FTPFile> fileInfo(String filePath) {
+        FTPManagerResponse<FTPFile> response = new FTPManagerResponse<>();
+        if (!isConnected(response)) {
+            return response;
+        }
+        try {
+            FTPFile ftpFile = client.mlistFile(filePath);
+            response.setContent(ftpFile);
+        } catch (IOException e) {
+            response.addError(e);
+        }
+        return response;
+    }
+
+    public boolean isConnected() {
+        return connected;
     }
 
     private <T> boolean isConnected(FTPManagerResponse<T> response) {

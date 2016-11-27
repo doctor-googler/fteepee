@@ -36,6 +36,10 @@ public class ConnectDialogController {
     @FXML
     void initialize() {
         errorLabel.setVisible(false);
+        // TODO remove that
+        address.setText("ftp.mccme.ru");
+        username.setText("anonymous");
+        password.setText("anonymous");
     }
 
     public void setStage(Stage stage) {
