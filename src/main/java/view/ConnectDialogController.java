@@ -63,4 +63,9 @@ public class ConnectDialogController {
             dialogStage.close();
         }
     }
+
+    @FXML
+    public void handleCancel() {
+        dialogStage.close();
+    }
 }

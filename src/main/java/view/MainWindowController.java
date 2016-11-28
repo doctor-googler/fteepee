@@ -6,7 +6,6 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -14,19 +13,21 @@ import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import model.FTPManager;
 import model.FTPManagerResponse;
+import model.IconUtil;
 import org.apache.commons.net.ftp.FTPFile;
 
 import java.io.File;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class MainWindowController {
     private FTPManager ftpManager;
-    private Map<String,Image> icons;
+    private IconUtil iconUtil;
     private Main mainApp;
     private SimpleDateFormat dateFormatter;
-    private Map<String,Image> previews;
 
     @FXML
     private Pane pane;
@@ -103,13 +104,12 @@ public class MainWindowController {
         assert progressBar != null : "fx:id=\"progressBar\" was not injected: check your FXML file 'MainWindow.fxml'.";
         assert treeView != null : "fx:id=\"treeView\" was not injected: check your FXML file 'MainWindow.fxml'.";
         dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
+        iconUtil = new IconUtil();
         itemDisconnect.setDisable(true);
         progressBar.setDisable(true);
         setDisableContextOperations(true);
         showInfoLables(false);
-        previews = new HashMap<>();
-        Image folder = new Image(MainWindowController.class.getResource("folder.png").toString());
-
+        preview.setSmooth(true);
     }
 
     @FXML
@@ -128,7 +128,8 @@ public class MainWindowController {
         setChildrenDirs(treeView.getRoot(), dirs);
         System.out.println(response.getContent());
         treeView.refresh();
-
+        preview.setFitHeight(256);
+        preview.setFitWidth(256);
         itemConnect.setDisable(true);
         itemDisconnect.setDisable(false);
         setDisableContextOperations(false);
@@ -145,6 +146,8 @@ public class MainWindowController {
 
         itemConnect.setDisable(false);
         itemDisconnect.setDisable(true);
+
+        preview.setImage(null);
         setDisableContextOperations(true);
         showInfoLables(false);
     }
@@ -170,9 +173,15 @@ public class MainWindowController {
                 if (file != null) {
                     System.out.println(file.toString());
                     switch (file.getType()){
-                        case FTPFile.DIRECTORY_TYPE: typeLabel.setText("Directory");break;
+                        case FTPFile.DIRECTORY_TYPE: {
+                            typeLabel.setText("Directory");
+                            preview.setImage(iconUtil.getFolderIcon());
+                            sizeLabel.setText("-");
+                            break;
+                        }
                         case FTPFile.FILE_TYPE: {
                             typeLabel.setText("File");
+                            preview.setImage(iconUtil.getFileIcon(file.getName()));
                             sizeLabel.setText(file.getSize()+" bytes");
                             break;
                         }
@@ -214,7 +223,8 @@ public class MainWindowController {
         FTPManagerResponse<FTPFile> response = ftpManager.fileInfo(remotePath);
         FTPFile ftpFile = response.getContent();
         if (ftpFile == null || ftpFile.isDirectory()) {
-            showErrorAlert("Chosen file cannot be downloaded\n Probably you are trying to download directory?");
+            showErrorAlert("Chosen file cannot be downloaded\nProbably you are trying to download directory?");
+            return;
         }
 
         FileChooser fileChooser = new FileChooser();
@@ -237,6 +247,7 @@ public class MainWindowController {
                 progressBar.progressProperty().unbind();
                 progressBar.progressProperty().setValue(0);
                 progressBar.setDisable(true);
+                showNotificationAlert("Downloading complete", fileName+" has been successfully downloaded into "+saveFile.getPath());
                 setDisableContextOperations(false);
             });
             downloadTask.setOnFailed( event -> {
@@ -325,7 +336,18 @@ public class MainWindowController {
     private void setChildrenDirs(TreeItem<String> parent, List<FTPFile> dirNames) {
         ObservableList<TreeItem<String>> list = parent.getChildren();
         for (FTPFile file : dirNames) {
-            list.add(new TreeItem<>(file.getName()));
+            TreeItem<String> treeItem = new TreeItem<>(file.getName());
+            ImageView elementIcon = new ImageView();
+            elementIcon.setFitHeight(16);
+            elementIcon.setFitWidth(16);
+            elementIcon.setSmooth(true);
+            treeItem.setGraphic(elementIcon);
+            if (file.isDirectory()) {
+                elementIcon.setImage(iconUtil.getFolderIcon());
+            } else {
+                elementIcon.setImage(iconUtil.getFileIcon(file.getName()));
+            }
+            list.add(treeItem);
         }
     }
 
@@ -333,6 +355,14 @@ public class MainWindowController {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
         alert.setHeaderText("Some error occurred");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showNotificationAlert(String headerText, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Notification");
+        alert.setHeaderText(headerText);
         alert.setContentText(message);
         alert.showAndWait();
     }

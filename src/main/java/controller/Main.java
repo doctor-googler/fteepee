@@ -36,6 +36,7 @@ public class Main extends Application{
         MainWindowController mainWindowController = loader.getController();
         mainWindowController.setMainApp(this);
 
+        primaryStage.setTitle("FTeePee - an FTP client");
         primaryStage.setScene(mainScene);
         primaryStage.show();
     }
