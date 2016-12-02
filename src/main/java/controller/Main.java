@@ -5,6 +5,7 @@ package controller; /**
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
@@ -14,6 +15,7 @@ import view.ConnectDialogController;
 import view.MainWindowController;
 
 import java.io.IOException;
+import java.net.URI;
 
 public class Main extends Application{
     private Stage primaryStage;
@@ -36,6 +38,8 @@ public class Main extends Application{
         MainWindowController mainWindowController = loader.getController();
         mainWindowController.setMainApp(this);
 
+        URI icoUri = Main.class.getResource("/icons/title.png").toURI();
+        primaryStage.getIcons().add(new Image(icoUri.toString()));
         primaryStage.setTitle("FTeePee - an FTP client");
         primaryStage.setScene(mainScene);
         primaryStage.show();

@@ -325,6 +325,7 @@ public class MainWindowController {
                 System.err.println(response.getContent());
                 return;
             }
+            item.setValue(str);
         });
     }
 
