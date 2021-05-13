@@ -9,9 +9,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by doctor-googler on 11/1/2016.
- */
 public class FTPManager {
     private FTPClient client;
     private boolean connected;
@@ -23,6 +20,7 @@ public class FTPManager {
 
     /**
      * Establish connection to the secured host
+     *
      * @param host
      * @param userName
      * @param password
@@ -48,6 +46,7 @@ public class FTPManager {
 
     /**
      * Disconnect from the host
+     *
      * @return
      */
     public FTPManagerResponse<Boolean> disconnect() {
@@ -68,6 +67,7 @@ public class FTPManager {
 
     /**
      * Retrieve a file list of current directory
+     *
      * @return
      */
     public FTPManagerResponse<List<FTPFile>> fileList() {
@@ -78,7 +78,7 @@ public class FTPManager {
         List<FTPFile> files = new ArrayList<>();
         try {
             //TODO: change listDirs to listNames
-            for(FTPFile file: client.listFiles()) {
+            for (FTPFile file : client.listFiles()) {
                 files.add(file);
             }
             response.setContent(files);
@@ -90,6 +90,7 @@ public class FTPManager {
 
     /**
      * Change current directory to other
+     *
      * @param directory
      * @return
      */
@@ -109,6 +110,7 @@ public class FTPManager {
 
     /**
      * Download file
+     *
      * @param remotePath
      * @param localPath
      * @return
@@ -130,6 +132,7 @@ public class FTPManager {
 
 
     //TODO unbind from javafx concurrent
+
     /**
      * Download file with progress representation
      */
@@ -155,19 +158,20 @@ public class FTPManager {
                 long done = 0;
                 int byteCount = 0;
                 client.setFileType(FTP.BINARY_FILE_TYPE);
-                try ( InputStream is = client.retrieveFileStream(remotePath);
-                      FileOutputStream fos = new FileOutputStream(localFile);) {
+                try (InputStream is = client.retrieveFileStream(remotePath);
+                     FileOutputStream fos = new FileOutputStream(localFile);) {
                     while ((byteCount = is.read(buf)) > 0) {
                         done += byteCount;
                         fos.write(buf, 0, byteCount);
                         updateProgress(done, size);
                     }
-                    fos.flush();;
+                    fos.flush();
+                    ;
                 } catch (IOException e) {
                     System.err.println(e);
                 } finally {
                     result = client.completePendingCommand();
-                    System.out.println("Download operation result: "+result);
+                    System.out.println("Download operation result: " + result);
                 }
                 return result;
             }
@@ -177,6 +181,7 @@ public class FTPManager {
     }
 
     //TODO unbind from javafx concurrent
+
     /**
      * Upload file with progress representation
      */
@@ -195,14 +200,14 @@ public class FTPManager {
             protected Boolean call() throws Exception {
                 boolean result = false;
                 client.setFileType(FTP.BINARY_FILE_TYPE);
-                try(FileInputStream fis = new FileInputStream(localFile);
-                    OutputStream os = client.appendFileStream(remotePath)){
+                try (FileInputStream fis = new FileInputStream(localFile);
+                     OutputStream os = client.appendFileStream(remotePath)) {
 
                     long fileSize = localFile.length();
                     long sended = 0L;
                     int bytesRead = 0;
                     byte[] buffer = new byte[1024];
-                    while((bytesRead = fis.read(buffer)) > 0) {
+                    while ((bytesRead = fis.read(buffer)) > 0) {
                         os.write(buffer, 0, bytesRead);
                         sended += bytesRead;
                         updateProgress(sended, fileSize);
@@ -212,7 +217,7 @@ public class FTPManager {
                     System.err.println(e);
                 } finally {
                     result = client.completePendingCommand();
-                    System.out.println("Upload operation result: "+result);
+                    System.out.println("Upload operation result: " + result);
                 }
 
                 return result;
@@ -225,6 +230,7 @@ public class FTPManager {
 
     /**
      * Delete remote file
+     *
      * @param path
      * @return
      */
@@ -243,6 +249,7 @@ public class FTPManager {
 
     /**
      * Rename remote file
+     *
      * @param oldPath
      * @param newPath
      * @return
@@ -262,8 +269,10 @@ public class FTPManager {
 
 
     //TODO unbind from transport-level file representation (FTPFile class)
+
     /**
      * Retrieves file info from the server
+     *
      * @param filePath
      * @return
      */

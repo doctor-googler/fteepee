@@ -43,8 +43,8 @@ public class ConnectDialog extends Dialog<String[]> {
         this.getDialogPane().setContent(grid);
 
         // Request focus on the username field by default.
-        Platform.runLater(() -> username.requestFocus());
-        this.setResultConverter((b)->{
+        Platform.runLater(username::requestFocus);
+        this.setResultConverter((b) -> {
             if (ButtonBar.ButtonData.OK_DONE.equals(b.getButtonData())) {
                 return new String[]{host.getText(), username.getText(), password.getText()};
             } else {
@@ -52,8 +52,6 @@ public class ConnectDialog extends Dialog<String[]> {
             }
         });
     }
-
-
 
 
 }

@@ -1,17 +1,10 @@
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.10'
+}
+
 apply plugin: 'java'
 apply plugin: 'idea'
-
-buildscript {
-    dependencies {
-        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: "8.5.1"
-    }
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-
-    }
-}
 
 repositories {
     mavenLocal();
@@ -19,11 +12,9 @@ repositories {
 }
 
 dependencies {
-    compile 'org.slf4j:slf4j-api:1.7.18'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
     compile group: 'commons-net', name: 'commons-net', version: '3.5'
-    compile group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.5.1'
-    compile 'org.controlsfx:controlsfx:8.40.12'
-    testCompile 'junit:junit:4.12'
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.1'
 }
 
 idea {
@@ -32,8 +23,9 @@ idea {
     }
 }
 
-apply plugin: 'javafx-gradle-plugin'
-jfx {
-    mainClass = 'Main'
-    vendor = 'Raman Hutkovich'
+javafx {
+    version = '11.0.2'
+    modules = ['javafx.controls', 'javafx.graphics', 'javafx.fxml']
 }
+
+mainClassName = 'controller.Main'

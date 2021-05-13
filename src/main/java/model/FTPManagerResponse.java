@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by doctor-googler on 11/1/2016.
- */
 public class FTPManagerResponse<T> implements Serializable {
     private T content;
     private List<Throwable> errors;
@@ -27,7 +24,7 @@ public class FTPManagerResponse<T> implements Serializable {
     }
 
     public T getContent() {
-        return  content;
+        return content;
     }
 
     public boolean isSuccess() {

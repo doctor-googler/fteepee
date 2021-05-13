@@ -66,6 +66,9 @@ public class MainWindowController {
     private MenuItem editDelete;
 
     @FXML
+    private MenuItem about;
+
+    @FXML
     private MenuItem contextDownload;
 
     @FXML
@@ -108,7 +111,7 @@ public class MainWindowController {
         itemDisconnect.setDisable(true);
         progressBar.setDisable(true);
         setDisableContextOperations(true);
-        showInfoLables(false);
+        showInfoLabels(false);
         preview.setSmooth(true);
     }
 
@@ -149,7 +152,7 @@ public class MainWindowController {
 
         preview.setImage(null);
         setDisableContextOperations(true);
-        showInfoLables(false);
+        showInfoLabels(false);
     }
 
     @FXML
@@ -167,12 +170,12 @@ public class MainWindowController {
             TreeItem<String> treeItem = treeView.getSelectionModel().getSelectedItem();
             String path = getFullPath(treeItem);
             if (me.getClickCount() == 1) {
-                showInfoLables(true);
+                showInfoLabels(true);
                 FTPManagerResponse<FTPFile> response = ftpManager.fileInfo(path);
                 FTPFile file = response.getContent();
                 if (file != null) {
                     System.out.println(file.toString());
-                    switch (file.getType()){
+                    switch (file.getType()) {
                         case FTPFile.DIRECTORY_TYPE: {
                             typeLabel.setText("Directory");
                             preview.setImage(iconUtil.getFolderIcon());
@@ -182,15 +185,19 @@ public class MainWindowController {
                         case FTPFile.FILE_TYPE: {
                             typeLabel.setText("File");
                             preview.setImage(iconUtil.getFileIcon(file.getName()));
-                            sizeLabel.setText(file.getSize()+" bytes");
+                            sizeLabel.setText(file.getSize() + " bytes");
                             break;
                         }
-                        case FTPFile.UNKNOWN_TYPE: typeLabel.setText("Unknown");break;
-                        case FTPFile.SYMBOLIC_LINK_TYPE: typeLabel.setText("Symbolic link");break;
+                        case FTPFile.UNKNOWN_TYPE:
+                            typeLabel.setText("Unknown");
+                            break;
+                        case FTPFile.SYMBOLIC_LINK_TYPE:
+                            typeLabel.setText("Symbolic link");
+                            break;
                     }
                     modifiedDateLabel.setText(file.getTimestamp().getTime().toString());
                 } else {
-                    System.out.println("File info error: "+response.getErrors());
+                    System.out.println("File info error: " + response.getErrors());
                 }
             }
 
@@ -200,7 +207,7 @@ public class MainWindowController {
                 if (file.isDirectory()) {
                     ObservableList<TreeItem<String>> nodeItems = treeItem.getChildren();
                     if (nodeItems.size() > 0) {
-                        treeItem.getChildren().remove(0,nodeItems.size());
+                        treeItem.getChildren().remove(0, nodeItems.size());
                     }
                     ftpManager.changeDirectory(getFullPath(treeItem));
                     List<FTPFile> list = ftpManager.fileList().getContent();
@@ -229,7 +236,7 @@ public class MainWindowController {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Download file to");
-        String fileName = remotePath.substring(remotePath.lastIndexOf("/")+1, remotePath.length());
+        String fileName = remotePath.substring(remotePath.lastIndexOf("/") + 1, remotePath.length());
         fileChooser.setInitialFileName(fileName);
         File saveFile = fileChooser.showSaveDialog(pane.getScene().getWindow());
         if (saveFile != null) {
@@ -247,10 +254,10 @@ public class MainWindowController {
                 progressBar.progressProperty().unbind();
                 progressBar.progressProperty().setValue(0);
                 progressBar.setDisable(true);
-                showNotificationAlert("Downloading complete", fileName+" has been successfully downloaded into "+saveFile.getPath());
+                showNotificationAlert("Downloading complete", fileName + " has been successfully downloaded into " + saveFile.getPath());
                 setDisableContextOperations(false);
             });
-            downloadTask.setOnFailed( event -> {
+            downloadTask.setOnFailed(event -> {
                 progressBar.progressProperty().unbind();
                 progressBar.progressProperty().setValue(0);
                 progressBar.setDisable(true);
@@ -272,10 +279,10 @@ public class MainWindowController {
 
         FileChooser fc = new FileChooser();
         fc.setTitle("Select uploading file");
-        fc.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Any file","*.*"));
+        fc.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Any file", "*.*"));
         File file = fc.showOpenDialog(pane.getScene().getWindow());
         if (file != null) {
-            remotePath += "/"+file.getName();
+            remotePath += "/" + file.getName();
             System.out.println(remotePath);
             FTPManagerResponse<Task<Boolean>> response = ftpManager.uploadWithProgress(remotePath, file.getAbsolutePath());
             if (response.getErrors() != null || response.getContent() == null) {
@@ -314,11 +321,11 @@ public class MainWindowController {
         String fullPath = getFullPath(item);
         TextInputDialog renameDialog = new TextInputDialog();
         renameDialog.setTitle("Rename");
-        renameDialog.setHeaderText(String.format("Please provide a new name for %s",item.getValue()));
+        renameDialog.setHeaderText(String.format("Please provide a new name for %s", item.getValue()));
         renameDialog.setContentText("New name:");
         Optional<String> result = renameDialog.showAndWait();
         result.ifPresent(str -> {
-            FTPManagerResponse<Boolean> response = ftpManager.rename(fullPath, fullPath.replace(item.getValue(),str));
+            FTPManagerResponse<Boolean> response = ftpManager.rename(fullPath, fullPath.replace(item.getValue(), str));
             if (!Boolean.TRUE.equals(response.getContent())) {
                 System.err.println("Rename operation error:");
                 System.err.println(response.getErrors());
@@ -331,7 +338,12 @@ public class MainWindowController {
 
     @FXML
     void handleContextDelete() {
+        showNotificationAlert("Not implemented", "Delete action is not implemented yet");
+    }
 
+    @FXML
+    void handleAbout() {
+        showNotificationAlert("About", "FTeePee - simple FTP client,\nRaman Hutkovich, 2016");
     }
 
     private void setChildrenDirs(TreeItem<String> parent, List<FTPFile> dirNames) {
@@ -372,7 +384,7 @@ public class MainWindowController {
         StringBuilder sb = new StringBuilder();
         TreeItem<String> cursor = item;
         while (cursor != null) {
-            sb.insert(0,"/").insert(0, cursor.getValue());
+            sb.insert(0, "/").insert(0, cursor.getValue());
             cursor = cursor.getParent();
         }
         if (sb.length() > 0) {
@@ -394,22 +406,9 @@ public class MainWindowController {
         editDelete.setDisable(value);
     }
 
-    private void showInfoLables(boolean value) {
+    private void showInfoLabels(boolean value) {
         typeLabel.setVisible(value);
         modifiedDateLabel.setVisible(value);
         sizeLabel.setVisible(value);
     }
-
-//    private String getUsefulSize(long bytes) {
-//        if (bytes <= Math.pow(10, 3)) {
-//            return bytes+" bytes";
-//        } else if (bytes <= Math.pow(10, 6)){
-//            return bytes/Math.pow(10,6)+" KB";
-//        } else if (bytes <= Math.pow(2, 30)){
-//            return bytes/Math.pow(2, 30)+" MB";
-//        } else if (bytes <= Math.pow(2, 40)){
-//            return bytes/Math.pow(2, 40)+" GB";
-//        }
-//        return bytes+"bytes";
-//    }
 }

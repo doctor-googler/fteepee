@@ -1,11 +1,10 @@
-package model; /**
- * Created by doctor-googler on 11/9/2016.
- */
+package model;
 
 import java.util.Scanner;
 
 import static java.lang.System.in;
 import static java.lang.System.out;
+
 public class Menu {
     private enum Commands {
         CONNECT("connect"),
@@ -18,13 +17,16 @@ public class Menu {
         EXIT("exit");
 
         private String command;
+
         Commands(String command) {
             this.command = command;
         }
+
         String getCommand() {
             return command;
         }
     }
+
     public void start(String... arguments) {
         FTPManager manager = new FTPManager();
         String input = null;

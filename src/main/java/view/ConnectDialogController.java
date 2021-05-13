@@ -56,7 +56,7 @@ public class ConnectDialogController {
         FTPManagerResponse<Boolean> response = manager.connect(address.getText(), username.getText(), password.getText());
         if (response.getErrors() != null) {
             errorLabel.setText("Unable to connect. Please check address & credentials");
-            System.err.println("Connection error:"+response.getErrors());
+            System.err.println("Connection error:" + response.getErrors());
             errorLabel.setVisible(true);
         } else {
             errorLabel.setVisible(false);

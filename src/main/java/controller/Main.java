@@ -1,6 +1,4 @@
-package controller; /**
- * Created by doctor-googler on 10/28/2016.
- */
+package controller;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -17,11 +15,11 @@ import view.MainWindowController;
 import java.io.IOException;
 import java.net.URI;
 
-public class Main extends Application{
+public class Main extends Application {
     private Stage primaryStage;
     private FTPManager ftpManager;
 
-    public static final void main(String... args) {
+    public static void main(String... args) {
         Application.launch(Main.class, args);
     }
 
@@ -40,7 +38,7 @@ public class Main extends Application{
 
         URI icoUri = Main.class.getResource("/icons/title.png").toURI();
         primaryStage.getIcons().add(new Image(icoUri.toString()));
-        primaryStage.setTitle("FTeePee - an FTP client");
+        primaryStage.setTitle("fteepee - simple FTP client");
         primaryStage.setScene(mainScene);
         primaryStage.show();
     }

@@ -7,17 +7,10 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by Administrator on 11/28/2016.
- */
 public class IconUtil {
-    private Map<String,Image> icons = new HashMap<>();
-    private String[] extensions = {
-            "AVI","ADOBE","DOC","DOCX","HTML","CSS",
-            "JPG","MP4","MP3","PNG",
-            "P","PPT","PPTX","PS","PSD","XLSX",
-            "XLS","FOLDER","GENERIC"
-    };
+    private Map<String, Image> icons = new HashMap<>();
+    private String[] extensions = {"folder", "generic"};
+
     public IconUtil() {
         try {
             for (String name : extensions) {
@@ -32,22 +25,22 @@ public class IconUtil {
 
     public Image getFileIcon(String fileName) {
         if (fileName == null || fileName.length() == 0) {
-            return icons.get("GENERIC");
+            return icons.get("generic");
         }
         int dotIndex = fileName.lastIndexOf(".");
         if (dotIndex <= 0 || dotIndex == fileName.length()) {
-            return icons.get("GENERIC");
+            return icons.get("generic");
         }
 
-        String extension = fileName.substring(fileName.lastIndexOf(".")+1).toUpperCase();
+        String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
         if (icons.containsKey(extension)) {
             return icons.get(extension);
         }
 
-        return icons.get("GENERIC");
+        return icons.get("generic");
     }
 
     public Image getFolderIcon() {
-        return icons.get("FOLDER");
+        return icons.get("folder");
     }
 }
