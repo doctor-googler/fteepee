@@ -7,10 +7,11 @@ import org.apache.commons.net.ftp.FTPFile;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class FTPManager {
-    private FTPClient client;
+    private final FTPClient client;
     private boolean connected;
 
     public FTPManager() {
@@ -58,7 +59,7 @@ public class FTPManager {
             client.logout();
             client.disconnect();
             connected = false;
-            response.setContent(!connected);
+            response.setContent(true);
         } catch (IOException e) {
             response.addError(e);
         }
@@ -78,9 +79,7 @@ public class FTPManager {
         List<FTPFile> files = new ArrayList<>();
         try {
             //TODO: change listDirs to listNames
-            for (FTPFile file : client.listFiles()) {
-                files.add(file);
-            }
+            Collections.addAll(files, client.listFiles());
             response.setContent(files);
         } catch (IOException e) {
             response.addError(e);
@@ -136,7 +135,7 @@ public class FTPManager {
     /**
      * Download file with progress representation
      */
-    public FTPManagerResponse<Task<Boolean>> downloadWithProgresss(String remotePath, String localPath) {
+    public FTPManagerResponse<Task<Boolean>> downloadWithProgress(String remotePath, String localPath) {
         FTPManagerResponse<Task<Boolean>> response = new FTPManagerResponse<>();
         if (!isConnected(response)) {
             return response;
@@ -148,27 +147,26 @@ public class FTPManager {
         if (ftpFile.isDirectory()) {
             response.addError(new Exception("Unable to download directory"));
         }
-        Task<Boolean> task = new Task<Boolean>() {
+        Task<Boolean> task = new Task<>() {
             @Override
             protected Boolean call() throws Exception {
-                boolean result = false;
+                boolean result;
                 File localFile = new File(localPath);
                 long size = ftpFile.getSize();
                 byte[] buf = new byte[1024];
                 long done = 0;
-                int byteCount = 0;
+                int byteCount;
                 client.setFileType(FTP.BINARY_FILE_TYPE);
                 try (InputStream is = client.retrieveFileStream(remotePath);
-                     FileOutputStream fos = new FileOutputStream(localFile);) {
+                     FileOutputStream fos = new FileOutputStream(localFile)) {
                     while ((byteCount = is.read(buf)) > 0) {
                         done += byteCount;
                         fos.write(buf, 0, byteCount);
                         updateProgress(done, size);
                     }
                     fos.flush();
-                    ;
                 } catch (IOException e) {
-                    System.err.println(e);
+                    System.err.println(e.getLocalizedMessage());
                 } finally {
                     result = client.completePendingCommand();
                     System.out.println("Download operation result: " + result);
@@ -195,26 +193,26 @@ public class FTPManager {
             response.addError(new Exception("File not exists"));
             return response;
         }
-        Task<Boolean> task = new Task<Boolean>() {
+        Task<Boolean> task = new Task<>() {
             @Override
             protected Boolean call() throws Exception {
-                boolean result = false;
+                boolean result;
                 client.setFileType(FTP.BINARY_FILE_TYPE);
                 try (FileInputStream fis = new FileInputStream(localFile);
                      OutputStream os = client.appendFileStream(remotePath)) {
 
                     long fileSize = localFile.length();
-                    long sended = 0L;
-                    int bytesRead = 0;
+                    long sent = 0L;
+                    int bytesRead;
                     byte[] buffer = new byte[1024];
                     while ((bytesRead = fis.read(buffer)) > 0) {
                         os.write(buffer, 0, bytesRead);
-                        sended += bytesRead;
-                        updateProgress(sended, fileSize);
+                        sent += bytesRead;
+                        updateProgress(sent, fileSize);
                     }
                     os.flush();
                 } catch (IOException e) {
-                    System.err.println(e);
+                    System.err.println(e.getLocalizedMessage());
                 } finally {
                     result = client.completePendingCommand();
                     System.out.println("Upload operation result: " + result);

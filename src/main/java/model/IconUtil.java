@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class IconUtil {
-    private Map<String, Image> icons = new HashMap<>();
-    private String[] extensions = {"folder", "generic"};
+    private static final String[] extensions = {"folder", "generic"};
+    private final Map<String, Image> icons = new HashMap<>();
 
     public IconUtil() {
         try {

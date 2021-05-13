@@ -30,7 +30,7 @@ public class Main extends Application {
 
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(Main.class.getResource("/MainWindow.fxml"));
-        Pane basePane = (Pane) loader.load();
+        Pane basePane = loader.load();
         Scene mainScene = new Scene(basePane);
 
         MainWindowController mainWindowController = loader.getController();
@@ -46,9 +46,9 @@ public class Main extends Application {
     public void showConnectDialog() {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(Main.class.getResource("/ConnectDialog.fxml"));
-        AnchorPane anchorPane = null;
+        AnchorPane anchorPane;
         try {
-            anchorPane = (AnchorPane) loader.load();
+            anchorPane = loader.load();
             ConnectDialogController dialogController = loader.getController();
 
             Scene dialogScene = new Scene(anchorPane);

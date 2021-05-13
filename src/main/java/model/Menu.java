@@ -16,7 +16,7 @@ public class Menu {
         UPLOAD("upl"),
         EXIT("exit");
 
-        private String command;
+        private final String command;
 
         Commands(String command) {
             this.command = command;
@@ -29,32 +29,32 @@ public class Menu {
 
     public void start(String... arguments) {
         FTPManager manager = new FTPManager();
-        String input = null;
+        String input;
         printGreeting();
         Scanner scn = new Scanner(in);
         while (true) {
             input = scn.nextLine();
-            String[] splitted = input.split(" ");
-            if (splitted.length <= 0) {
+            String[] split = input.split(" ");
+            if (split.length <= 0) {
                 out.println("ERROR: Invalid command");
                 continue;
             }
-            if (Commands.CONNECT.getCommand().equals(splitted[0])) {
-                out.println(String.format("Attempt to login with '%s' to '%s' host. Success: %s", splitted[2], splitted[1],
-                        manager.connect(splitted[1], splitted[2], splitted[3]).getContent()));
-            } else if (Commands.DIR.getCommand().equals(splitted[0])) {
+            if (Commands.CONNECT.getCommand().equals(split[0])) {
+                out.printf("Attempt to login with '%s' to '%s' host. Success: %s%n", split[2], split[1],
+                        manager.connect(split[1], split[2], split[3]).getContent());
+            } else if (Commands.DIR.getCommand().equals(split[0])) {
                 //TODO add support for custom path
                 out.println(manager.fileList().getContent());
-            } else if (Commands.CD.getCommand().equals(splitted[0])) {
-                out.println(manager.changeDirectory(splitted[1]).getContent());
-            } else if (Commands.DOWNLOAD.getCommand().equals(splitted[0])) {
-                out.println(manager.download(splitted[1], splitted[2]).getContent());
-            } else if (Commands.DISCONNECT.getCommand().equals(splitted[0])) {
+            } else if (Commands.CD.getCommand().equals(split[0])) {
+                out.println(manager.changeDirectory(split[1]).getContent());
+            } else if (Commands.DOWNLOAD.getCommand().equals(split[0])) {
+                out.println(manager.download(split[1], split[2]).getContent());
+            } else if (Commands.DISCONNECT.getCommand().equals(split[0])) {
                 out.println(manager.disconnect().getContent());
-            } else if (Commands.EXIT.getCommand().equals(splitted[0])) {
+            } else if (Commands.EXIT.getCommand().equals(split[0])) {
                 manager.disconnect();
                 return;
-            } else if (Commands.HELP.getCommand().equals(splitted[0])) {
+            } else if (Commands.HELP.getCommand().equals(split[0])) {
                 out.println("Commands:" +
                         "\nconnect <host> <username> <password>   -   connect to host with provided credentials." +
                         "\ndisconnect                             -   disconnects from connected host." +
@@ -66,7 +66,6 @@ public class Menu {
                         "\nexit                                   -   perform disconnect and then closes this program.");
             } else {
                 out.println("ERROR: Invalid command");
-                continue;
             }
         }
     }

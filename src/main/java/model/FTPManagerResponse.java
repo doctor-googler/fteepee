@@ -14,7 +14,7 @@ public class FTPManagerResponse<T> implements Serializable {
 
     public void addError(Throwable error) {
         if (errors == null) {
-            errors = new ArrayList<Throwable>();
+            errors = new ArrayList<>();
         }
         errors.add(error);
     }

@@ -126,7 +126,7 @@ public class MainWindowController {
             return;
         }
 
-        treeView.setRoot(new TreeItem<String>("/"));
+        treeView.setRoot(new TreeItem<>("/"));
         List<FTPFile> dirs = response.getContent();
         setChildrenDirs(treeView.getRoot(), dirs);
         System.out.println(response.getContent());
@@ -157,7 +157,7 @@ public class MainWindowController {
 
     @FXML
     void handleExit() {
-        FTPManagerResponse<Boolean> response = ftpManager.disconnect();
+        ftpManager.disconnect();
         Platform.exit();
     }
 
@@ -174,7 +174,7 @@ public class MainWindowController {
                 FTPManagerResponse<FTPFile> response = ftpManager.fileInfo(path);
                 FTPFile file = response.getContent();
                 if (file != null) {
-                    System.out.println(file.toString());
+                    System.out.println(file);
                     switch (file.getType()) {
                         case FTPFile.DIRECTORY_TYPE: {
                             typeLabel.setText("Directory");
@@ -236,11 +236,11 @@ public class MainWindowController {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Download file to");
-        String fileName = remotePath.substring(remotePath.lastIndexOf("/") + 1, remotePath.length());
+        String fileName = remotePath.substring(remotePath.lastIndexOf("/") + 1);
         fileChooser.setInitialFileName(fileName);
         File saveFile = fileChooser.showSaveDialog(pane.getScene().getWindow());
         if (saveFile != null) {
-            FTPManagerResponse<Task<Boolean>> downloadResponse = ftpManager.downloadWithProgresss(remotePath, saveFile.getAbsolutePath());
+            FTPManagerResponse<Task<Boolean>> downloadResponse = ftpManager.downloadWithProgress(remotePath, saveFile.getAbsolutePath());
             if (downloadResponse.getErrors() != null) {
                 System.err.println(downloadResponse.getErrors());
                 return;
@@ -343,7 +343,7 @@ public class MainWindowController {
 
     @FXML
     void handleAbout() {
-        showNotificationAlert("About", "FTeePee - simple FTP client,\nRaman Hutkovich, 2016");
+        showNotificationAlert("About", "fteepee - simple FTP client,\nRaman Hutkovich, 2016");
     }
 
     private void setChildrenDirs(TreeItem<String> parent, List<FTPFile> dirNames) {

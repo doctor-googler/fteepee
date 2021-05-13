@@ -36,9 +36,8 @@ public class ConnectDialog extends Dialog<String[]> {
         loginButton.setDisable(true);
 
         // Do some validation (using the Java 8 lambda syntax).
-        username.textProperty().addListener((observable, oldValue, newValue) -> {
-            loginButton.setDisable(newValue.trim().isEmpty());
-        });
+        username.textProperty().addListener((observable, oldValue, newValue) ->
+                loginButton.setDisable(newValue.trim().isEmpty()));
 
         this.getDialogPane().setContent(grid);
 
